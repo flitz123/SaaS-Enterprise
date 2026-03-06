@@ -1,11 +1,10 @@
 fastapi
 uvicorn[standard]
-sqlalchemy>=2.0
+sqlalchemy[asyncio]
 asyncpg
+pydantic
+python-jose
+passlib[bcrypt]
 redis
 celery
-python-dotenv
-passlib[bcrypt]
-python-jose
-pydantic
-email-validator
+psycopg2-binary
