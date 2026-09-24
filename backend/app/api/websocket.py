@@ -11,7 +11,8 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            for conn in connections:
+            for conn in connections.copy():
                 await conn.send_text(data)
-    except:
-        connections.remove(websocket) 
+    except Exception:
+        if websocket in connections:
+            connections.remove(websocket)

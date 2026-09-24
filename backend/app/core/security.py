@@ -12,3 +12,7 @@ def verify_password(plain: str, hashed: str):
 
 def create_token(data: dict):
     return jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def decode_token(token: str):
+    return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])

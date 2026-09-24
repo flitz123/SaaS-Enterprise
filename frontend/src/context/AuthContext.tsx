@@ -1,9 +1,15 @@
-import React, { createContext, useState } from "react";
+import { createContext, useState, type ReactNode } from "react";
 import { loginUser } from "../api/auth";
 
-export const AuthContext = createContext<any>(null);
+type AuthContextValue = {
+  token: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+};
 
-export const AuthProvider = ({ children }: any) => {
+export const AuthContext = createContext<AuthContextValue | null>(null);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
   const login = async (email: string, password: string) => {
@@ -12,8 +18,13 @@ export const AuthProvider = ({ children }: any) => {
     setToken(res.access_token);
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ token, login }}>
+    <AuthContext.Provider value={{ token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
