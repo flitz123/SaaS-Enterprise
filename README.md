@@ -12,6 +12,9 @@ Strata is a focused SaaS workspace for teams that need a clear view of projects,
 - Remove tasks from a project.
 - View Team Pulse based on completed tasks.
 - See the realtime collaboration connection status.
+- Manage workspace members with owner, admin, and member roles.
+- Switch between workspaces available to the signed-in user.
+- Preview subscription plans, billing cycles, invoice history, and plan selection.
 - Use the responsive dashboard on desktop or mobile.
 
 ## User Guide
@@ -25,6 +28,8 @@ http://127.0.0.1:5173/register
 ```
 
 Enter a valid email and a password with at least 8 characters. After registration, Strata redirects you to the sign-in page.
+
+Registration also creates a personal workspace for the new user. The registering user is automatically assigned the `owner` role in that workspace.
 
 ### 2. Sign In
 
@@ -78,6 +83,22 @@ Deleting a project also deletes its tasks.
 ### 6. Sign Out
 
 Select **Sign out** in the workspace sidebar. This removes the browser token and returns to the login page.
+
+### Workspace Membership Rules
+
+- A user must register before they can be added to another workspace.
+- Registration creates the user's account and their initial workspace at the same time.
+- The registering user becomes the owner of that initial workspace.
+- Workspace owners and admins can add an existing registered user by email from the Team page.
+- A user can belong to multiple workspaces and switch between them from the workspace selector.
+- New members can be assigned the `member` or `admin` role. Only the workspace owner can change roles.
+- Unregistered email addresses cannot be added as members.
+
+## Current Scope
+
+The core workspace and tenant administration workflows are functional. Workspace membership, active-tenant switching, role changes, and project/task access are persisted and permission-checked. The Billing page remains an integrated static prototype: plan, invoice, and billing-cycle interactions use local frontend state and do not process payments. The WebSocket channel currently broadcasts messages in memory and does not persist collaboration history.
+
+The workspace administration page is available at `/team` and the billing prototype at `/billing` after signing in. Billing is labeled in the interface as prototype data so it is not mistaken for production payment processing.
 
 ## Local Development
 
@@ -153,7 +174,14 @@ Main endpoints:
 | `GET` | `/` | Health check |
 | `POST` | `/auth/register` | Create an account |
 | `POST` | `/auth/login` | Obtain a JWT |
+| `POST` | `/auth/switch-tenant/{tenant_id}` | Switch the active workspace |
 | `GET` | `/dashboard/summary` | Read project, task, and Team Pulse metrics |
+| `GET` | `/tenants/` | List the user's workspaces and roles |
+| `POST` | `/tenants/` | Create a workspace |
+| `GET` | `/tenants/{tenant_id}/members` | List workspace members |
+| `POST` | `/tenants/{tenant_id}/members` | Add a registered user to a workspace |
+| `PATCH` | `/tenants/{tenant_id}/members/{user_id}` | Change a member role |
+| `DELETE` | `/tenants/{tenant_id}/members/{user_id}` | Remove workspace access |
 | `GET` | `/projects/` | List the current user's projects |
 | `POST` | `/projects/` | Create a project |
 | `DELETE` | `/projects/{project_id}` | Delete an owned project and its tasks |
@@ -185,39 +213,10 @@ frontend/
     api/          Axios API clients
     components/   Protected routes and workspace shell
     context/      Authentication state
-    pages/        Login, registration, dashboard, and projects
+    pages/        Login, registration, dashboard, projects, team, and billing
     websocket/    Realtime client
     styles.css    Responsive Strata design system
 ```
 
-## Deployment
 
-### Render
 
-The root `render.yaml` defines a Render deployment for:
-
-- A Docker-based FastAPI API
-- A static Vite frontend
-- A managed PostgreSQL database
-
-Set or verify these environment variables in Render:
-
-- `SECRET_KEY`: a strong production secret
-- `DATABASE_URL`: managed PostgreSQL connection string
-- `CORS_ORIGINS`: the deployed frontend URL
-- `VITE_API_URL`: the deployed backend URL
-
-### Vercel
-
-The frontend includes `frontend/vercel.json` for SPA route fallback. Set `VITE_API_URL` in the Vercel project environment variables to the deployed API URL. The FastAPI backend should run on Render or another Python-compatible service with PostgreSQL access.
-
-## Current Scope
-
-The current implementation focuses on the core workspace workflow. Tenant and subscription models are present for future expansion, but tenant administration, billing screens, and subscription APIs are not yet exposed as user workflows. The WebSocket channel currently broadcasts messages in memory and does not persist collaboration history.
-
-## Security Notes
-
-- Use a strong, unique `SECRET_KEY` in production.
-- Use HTTPS for deployed frontend and API URLs.
-- Do not use the local development credentials or SQLite database in production.
-- Configure `CORS_ORIGINS` to only include trusted frontend origins.

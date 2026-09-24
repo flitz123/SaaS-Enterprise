@@ -23,6 +23,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <NavLink to="/projects" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
             <span className="nav-glyph">#</span> Projects
           </NavLink>
+          <NavLink to="/team" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+            <span className="nav-glyph">@</span> Team
+          </NavLink>
+          <NavLink to="/billing" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+            <span className="nav-glyph">$</span> Billing
+          </NavLink>
         </nav>
         <div className="sidebar-footer">
           <div className="status-dot"><span /> Systems operational</div>
@@ -32,6 +38,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <div className="main-column">
         <header className="topbar">
           <div><span className="eyebrow">ENTERPRISE CONTROL PLANE</span><h1>Good to see you</h1></div>
+          {auth?.tenants.length ? <select className="tenant-switcher" value={auth.tenantId ?? ""} onChange={(event) => auth.switchTenant(Number(event.target.value))} aria-label="Active workspace"><option value="" disabled>Choose workspace</option>{auth.tenants.map((tenant) => <option value={tenant.id} key={tenant.id}>{tenant.name} ({tenant.role})</option>)}</select> : null}
           <div className="avatar">S</div>
         </header>
         <div className="page-content">{children}</div>

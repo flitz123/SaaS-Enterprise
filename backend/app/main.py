@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, text
-from app.api import auth, dashboard, projects, tasks, websocket
+from app.api import auth, dashboard, projects, tasks, tenants, websocket
 from app.config import settings
 from app.models.base import Base
 from app.core.database import engine
@@ -21,6 +21,7 @@ app.include_router(auth.router)
 app.include_router(projects.router)
 app.include_router(tasks.router)
 app.include_router(dashboard.router)
+app.include_router(tenants.router)
 app.include_router(websocket.router)
 
 @app.on_event("startup")

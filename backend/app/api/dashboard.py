@@ -3,10 +3,10 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.deps import get_current_user
+from app.deps import get_current_membership
 from app.models.project import Project
 from app.models.task import Task
-from app.models.user import User
+from app.models.tenant_membership import TenantMembership
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -14,15 +14,15 @@ router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 @router.get("/summary")
 async def dashboard_summary(
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    membership: TenantMembership = Depends(get_current_membership),
 ):
     project_count = await db.scalar(
-        select(func.count(Project.id)).where(Project.owner_id == user.id)
+        select(func.count(Project.id)).where(Project.tenant_id == membership.tenant_id)
     )
     tasks = await db.scalars(
         select(Task)
         .join(Project, Task.project_id == Project.id)
-        .where(Project.owner_id == user.id)
+        .where(Project.tenant_id == membership.tenant_id)
     )
     task_list = list(tasks)
     total_tasks = len(task_list)

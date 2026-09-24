@@ -5,6 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AppShell from "./components/AppShell";
+import Team from "./pages/Team";
+import Billing from "./pages/Billing";
 
 export default function App() {
   return (
@@ -27,6 +29,8 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/team" element={<ProtectedRoute><AppShell><Team /></AppShell></ProtectedRoute>} />
+      <Route path="/billing" element={<ProtectedRoute><AppShell><Billing /></AppShell></ProtectedRoute>} />
     </Routes>
   );
 }
