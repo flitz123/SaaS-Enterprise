@@ -12,7 +12,7 @@ services:
           name: saas-enterprise-db
           property: connectionString
       - key: CORS_ORIGINS
-        value: https://saas-enterprise-ui.onrender.com
+        value: https://saa-s-enterprise.vercel.app,https://saas-enterprise-ui.onrender.com
 
   - type: web
     name: saas-enterprise-ui
@@ -26,7 +26,7 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://saas-enterprise-api.onrender.com
+        value: https://saas-enterprise-2ehf.onrender.com
 
 databases:
   - name: saas-enterprise-db
