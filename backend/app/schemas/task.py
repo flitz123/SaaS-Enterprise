@@ -12,3 +12,11 @@ class TaskCreate(BaseModel):
 
 class TaskStatusUpdate(BaseModel):
     status: TaskStatus
+
+
+class TaskAssigneeCreate(BaseModel):
+    user_id: int
+
+
+class TaskProgressUpdate(BaseModel):
+    progress: int = Field(ge=0, le=100)

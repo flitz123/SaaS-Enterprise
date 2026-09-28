@@ -26,7 +26,7 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://saas-enterprise-2ehf.onrender.com
+        value: https://saa-s-enterprise-oabb.vercel.app
 
 databases:
   - name: saas-enterprise-db

@@ -3,6 +3,23 @@
 :root { font-family: 'Manrope', sans-serif; color: #e8eceb; background: #10191b; font-synthesis: none; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: #10191b; }
+.task-row { flex-wrap: wrap; }
+.task-assignees { border-top: 1px solid #3a5a55; display: grid; flex-basis: 100%; gap: 8px; padding: 12px 0 2px 19px; }
+.assignee-add, .assignee-progress, .assignee-progress label { align-items: center; color: #b4c8bd; display: flex; font-family: 'DM Mono', monospace; font-size: 10px; gap: 10px; }
+.assignee-add select, .assignee-progress input { background: #31534d; border: 1px solid #54736d; border-radius: 2px; color: #e8eee6; font: inherit; padding: 5px 7px; }
+.assignee-add select { max-width: min(220px, 55vw); }
+.assignee-progress { min-height: 30px; }
+.assignee-progress > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.assignee-progress input { text-align: right; width: 58px; }
+.task-heading-summary { align-items: end; display: flex; gap: 18px; }
+.project-progress { min-width: 150px; }
+.project-progress > div { align-items: center; display: flex; justify-content: space-between; }
+.project-progress span { color: #91aaa1; font-family: 'DM Mono', monospace; font-size: 9px; }
+.project-progress strong { color: #d7f36a; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+.project-progress progress { appearance: none; background: #3a5a55; border: 0; display: block; height: 4px; margin-top: 7px; width: 100%; }
+.project-progress progress::-webkit-progress-bar { background: #3a5a55; }
+.project-progress progress::-webkit-progress-value { background: #d7f36a; }
+.project-progress progress::-moz-progress-bar { background: #d7f36a; }
 button, input { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-decoration: none; }
