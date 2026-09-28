@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, type FormEvent } from "react";
+import { useContext, useEffect, useRef, useState, type FormEvent } from "react";
 import { addMember, getMembers, removeMember, updateMemberRole, type Member } from "../api/tenants";
 import { AuthContext } from "../context/AuthContext";
 
@@ -9,14 +9,25 @@ export default function Team() {
   const [role, setRole] = useState<"admin" | "member">("member");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const memberRequestId = useRef(0);
   const currentTenant = auth?.tenants.find((tenant) => tenant.id === auth.tenantId);
   const canManage = currentTenant?.role === "owner" || currentTenant?.role === "admin";
 
   const loadMembers = () => {
-    if (auth?.tenantId) getMembers(auth.tenantId).then(setMembers).catch(() => setError("Unable to load workspace members."));
+    const requestId = ++memberRequestId.current;
+    if (!auth?.tenantId) { setMembers([]); return; }
+    getMembers(auth.tenantId).then((loadedMembers) => {
+      if (memberRequestId.current === requestId) setMembers(loadedMembers);
+    }).catch(() => {
+      if (memberRequestId.current === requestId) setError("Unable to load workspace members.");
+    });
   };
 
-  useEffect(() => { loadMembers(); }, [auth?.tenantId]);
+  useEffect(() => {
+    memberRequestId.current += 1;
+    setMembers([]);
+    loadMembers();
+  }, [auth?.tenantId]);
 
   const invite = async (event: FormEvent) => {
     event.preventDefault();

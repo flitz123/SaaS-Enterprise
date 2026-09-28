@@ -55,6 +55,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setTenantId(null);
   };
 
+  useEffect(() => {
+    const expireSession = () => logout();
+    window.addEventListener("auth:expired", expireSession);
+    return () => window.removeEventListener("auth:expired", expireSession);
+  }, []);
+
   return (
     <AuthContext.Provider value={{ token, tenantId, tenants, login, switchTenant, logout }}>
       {children}

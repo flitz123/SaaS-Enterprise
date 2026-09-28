@@ -4,7 +4,7 @@ from sqlalchemy import delete, select
 from app.core.database import get_db
 from app.deps import get_current_membership, get_current_user
 from app.models.project import Project
-from app.models.task import Task
+from app.models.task import Task, TaskAssignment
 from app.models.tenant_membership import TenantMembership
 from app.models.user import User
 from app.schemas.project import ProjectCreate
@@ -14,10 +14,18 @@ router = APIRouter(prefix="/projects", tags=["Projects"])
 @router.get("/")
 async def list_projects(
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
     membership: TenantMembership = Depends(get_current_membership),
 ):
     result = await db.execute(select(Project).where(Project.tenant_id == membership.tenant_id))
-    return result.scalars().all()
+    return [
+        {
+            "id": project.id,
+            "name": project.name,
+            "can_delete": project.owner_id == user.id or membership.role in {"owner", "admin"},
+        }
+        for project in result.scalars().all()
+    ]
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -50,6 +58,8 @@ async def delete_project(
     if project.owner_id != user.id and membership.role not in {"owner", "admin"}:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only project owners or admins can delete projects")
 
+    task_ids = select(Task.id).where(Task.project_id == project_id)
+    await db.execute(delete(TaskAssignment).where(TaskAssignment.task_id.in_(task_ids)))
     await db.execute(delete(Task).where(Task.project_id == project_id))
     await db.delete(project)
     await db.commit()

@@ -1,12 +1,12 @@
 import api from "./axios"
 
 export const getProjects = async () => {
-    const res = await api.get("/projects")
+    const res = await api.get("/projects/")
     return res.data
 }
 
 export const createProject = async (name: string) => {
-    const res = await api.post("/projects", { name })
+    const res = await api.post("/projects/", { name })
     return res.data
 }
 
@@ -19,12 +19,12 @@ export type TaskAssignee = { user_id: number; email: string; progress: number }
 export type Task = { id: number; title: string; status: TaskStatus; project_id: number; assignees: TaskAssignee[] }
 
 export const getTasks = async (projectId: number): Promise<Task[]> => {
-    const res = await api.get(`/projects/${projectId}/tasks`)
+    const res = await api.get(`/projects/${projectId}/tasks/`)
     return res.data
 }
 
 export const createTask = async (projectId: number, title: string) => {
-    const res = await api.post(`/projects/${projectId}/tasks`, { title })
+    const res = await api.post(`/projects/${projectId}/tasks/`, { title })
     return res.data as Task
 }
 

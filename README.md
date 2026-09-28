@@ -117,7 +117,11 @@ $python = "$env:LocalAppData\Programs\Python\Python312\python.exe"
 Set-Location backend
 & $python -m pip install -r requirements.txt
 $env:DATABASE_URL = "sqlite+aiosqlite:///./local-saas.db"
-$env:SECRET_KEY = "local-development-secret"
+$secretBytes = New-Object byte[] 32
+$rng = [Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($secretBytes)
+$env:SECRET_KEY = [Convert]::ToBase64String($secretBytes)
+$rng.Dispose()
 & $python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
@@ -154,8 +158,15 @@ npm run build
 Docker Compose starts PostgreSQL, Redis, the API, and the Celery worker:
 
 ```powershell
+$secretBytes = New-Object byte[] 32
+$rng = [Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($secretBytes)
+$env:SECRET_KEY = [Convert]::ToBase64String($secretBytes)
+$rng.Dispose()
 docker compose -f backend/docker-compose.yaml up --build
 ```
+
+Set `SECRET_KEY` to a random value of at least 32 characters in the backend host's environment. The Render blueprint generates one automatically.
 
 The API is exposed on port `8000`, PostgreSQL on `5432`, and Redis on `6379`.
 

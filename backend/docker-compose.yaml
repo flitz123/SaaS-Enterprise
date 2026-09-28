@@ -17,6 +17,8 @@ services:
 
   backend:
     build: .
+    environment:
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in the shell before starting Docker Compose}
     volumes:
       - .:/code
     ports:
@@ -28,6 +30,8 @@ services:
   worker:
     build: .
     command: celery -A app.core.celery_app worker --loglevel=info
+    environment:
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in the shell before starting Docker Compose}
     volumes:
       - .:/code
     depends_on:

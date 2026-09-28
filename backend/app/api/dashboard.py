@@ -19,15 +19,16 @@ async def dashboard_summary(
     project_count = await db.scalar(
         select(func.count(Project.id)).where(Project.tenant_id == membership.tenant_id)
     )
-    tasks = await db.scalars(
-        select(Task)
+    task_counts = await db.execute(
+        select(Task.status, func.count(Task.id))
         .join(Project, Task.project_id == Project.id)
         .where(Project.tenant_id == membership.tenant_id)
+        .group_by(Task.status)
     )
-    task_list = list(tasks)
-    total_tasks = len(task_list)
-    completed_tasks = sum(task.status == "completed" for task in task_list)
-    paused_tasks = sum(task.status == "paused" for task in task_list)
+    counts_by_status = dict(task_counts.all())
+    total_tasks = sum(counts_by_status.values())
+    completed_tasks = counts_by_status.get("completed", 0)
+    paused_tasks = counts_by_status.get("paused", 0)
     active_tasks = total_tasks - completed_tasks - paused_tasks
 
     return {

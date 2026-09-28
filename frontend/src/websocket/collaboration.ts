@@ -3,7 +3,10 @@ export const connectWebSocket = (onOpen?: () => void) => {
         ? "http://localhost:8000"
         : "https://saa-s-enterprise-oabb.vercel.app")
     const socketUrl = apiUrl.replace(/^http/, "ws") + "/ws"
-    const socket = new WebSocket(socketUrl)
+    const token = localStorage.getItem("token")
+    const socket = token
+        ? new WebSocket(socketUrl, ["bearer", token])
+        : new WebSocket(socketUrl)
     if (onOpen) socket.addEventListener("open", onOpen)
     socket.onmessage = (event) => {
         console.log("Realtime:", event.data)

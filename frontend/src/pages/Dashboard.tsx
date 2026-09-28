@@ -1,19 +1,24 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { connectWebSocket } from "../websocket/collaboration";
 import { getDashboardSummary, type DashboardSummary } from "../api/dashboard";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Dashboard() {
+  const auth = useContext(AuthContext);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [connection, setConnection] = useState("Connecting");
 
   useEffect(() => {
-    getDashboardSummary().then(setSummary).catch(() => undefined);
-    const socket = connectWebSocket(() => setConnection("Live"));
-    socket.addEventListener("close", () => setConnection("Offline"));
-    socket.addEventListener("error", () => setConnection("Offline"));
-    return () => socket.close();
-  }, []);
+    let active = true;
+    setSummary(null);
+    setConnection("Connecting");
+    getDashboardSummary().then((result) => { if (active) setSummary(result); }).catch(() => undefined);
+    const socket = connectWebSocket(() => { if (active) setConnection("Live"); });
+    socket.addEventListener("close", () => { if (active) setConnection("Offline"); });
+    socket.addEventListener("error", () => { if (active) setConnection("Offline"); });
+    return () => { active = false; socket.close(); };
+  }, [auth?.tenantId, auth?.token]);
 
   return <main className="dashboard-page">
     <div className="page-intro"><div><span className="eyebrow">THURSDAY, SEPTEMBER 24</span><h2>Your workspace at a glance.</h2><p className="muted">A focused view of the work moving your business forward.</p></div><Link className="primary-button compact" to="/projects">Open projects <span>{"->"}</span></Link></div>

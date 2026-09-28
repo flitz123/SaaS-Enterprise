@@ -56,8 +56,28 @@ async def list_tasks(
     membership: TenantMembership = Depends(get_current_membership),
 ):
     await owned_project(project_id, membership, db)
-    result = await db.execute(select(Task).where(Task.project_id == project_id).order_by(Task.id))
-    return [await task_response(task, db) for task in result.scalars().all()]
+    result = await db.execute(
+        select(Task, TaskAssignment, User.email)
+        .outerjoin(TaskAssignment, TaskAssignment.task_id == Task.id)
+        .outerjoin(User, User.id == TaskAssignment.user_id)
+        .where(Task.project_id == project_id)
+        .order_by(Task.id, User.email)
+    )
+    tasks: dict[int, dict] = {}
+    for task, assignment, email in result.all():
+        if task.id not in tasks:
+            tasks[task.id] = {
+                "id": task.id,
+                "title": task.title,
+                "status": task.status,
+                "project_id": task.project_id,
+                "assignees": [],
+            }
+        if assignment is not None:
+            tasks[task.id]["assignees"].append(
+                {"user_id": assignment.user_id, "email": email, "progress": assignment.progress}
+            )
+    return list(tasks.values())
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
